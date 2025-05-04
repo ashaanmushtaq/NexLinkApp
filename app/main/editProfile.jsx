@@ -78,13 +78,22 @@ const EditProfile = () => {
 
   const uploadImageToFirebase = async () => {
     if (!imageFile || !authUser) return null;
-    const response = await fetch(imageFile.uri);
-    const blob = await response.blob();
-    const storageRef = ref(storage, `profileImages/${authUser.uid}.jpg`);
-    await uploadBytes(storageRef, blob);
-    const downloadURL = await getDownloadURL(storageRef);
-    return downloadURL;
+  
+    try {
+      const response = await fetch(imageFile.uri);
+      const blob = await response.blob();
+  
+      const fileRef = ref(storage, `profileImages/${authUser.uid}.jpg`);
+      await uploadBytes(fileRef, blob);
+  
+      const downloadURL = await getDownloadURL(fileRef);
+      return downloadURL;
+    } catch (error) {
+      console.log('Image upload failed:', error);
+      throw error;
+    }
   };
+  
 
   const onSubmit = async () => {
     const { name, phoneNumber, address, bio } = userInfo;
@@ -123,7 +132,7 @@ const EditProfile = () => {
       {/* Header with Back Arrow */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="arrow-back" size={24} color="#fff" />
         </Pressable>
         <Text style={styles.headerTitle}>Edit Profile</Text>
         <View style={{ width: 24 }} /> {/* Placeholder for alignment */}
@@ -200,13 +209,13 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderColor: '#e0e0e0',
-    backgroundColor: 'white',
-    justifyContent: 'space-between',
+    backgroundColor: '#00c26f',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: '#fff',
+    marginLeft:15,
   },
   scrollContainer: {
     paddingHorizontal: 16,

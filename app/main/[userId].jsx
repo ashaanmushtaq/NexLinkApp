@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { auth, db } from '../../config/FirebaseConfig';
 import {
   doc,
@@ -28,6 +28,8 @@ import PostCard from '../components/PostCard';
 import { getLikesCount } from '../../config/likes';
 import { getCommentsCount } from '../../config/comments';
 import Ionicons from '@expo/vector-icons/Ionicons';
+
+// ... your imports stay the same
 
 const OtherUserProfileScreen = () => {
   const { userId } = useLocalSearchParams();
@@ -114,6 +116,7 @@ const OtherUserProfileScreen = () => {
       const sortedPosts = postsData.sort(
         (a, b) => b.createdAt?.seconds - a.createdAt?.seconds
       );
+
       setPosts(sortedPosts);
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -191,16 +194,17 @@ const OtherUserProfileScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" style={styles.backArrow} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{userInfo.displayName}</Text>
-        <View style={{ width: 26 }} /> {/* For spacing */}
+        <View style={{ width: 26 }} />
       </View>
 
       <FlatList
+        data={posts}
+        keyExtractor={(item, index) => item.id || index.toString()}
         ListHeaderComponent={
           <View style={styles.profileSection}>
             <Avatar uri={userInfo.profilePicture} size={100} rounded={50} />
@@ -229,10 +233,19 @@ const OtherUserProfileScreen = () => {
             </TouchableOpacity>
           </View>
         }
-        data={posts}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <PostCard post={item} authUser={authUser} />}
-        contentContainerStyle={{ paddingBottom: 40 }}
+        renderItem={({ item }) => (
+          <PostCard
+            post={item}
+            user={authUser}
+            navigateToUserProfile={(userId) => router.push(`/user/${userId}`)}
+            handleUnfollow={(userId) => console.log('Unfollow user:', userId)}
+            handleDelete={(postId) => console.log('Delete post:', postId)}
+            handleHide={(postId) => console.log('Hide post:', postId)}
+            navigateToComments={(postId) => router.push(`/comments/${postId}`)}
+          />
+        )}
+        ListEmptyComponent={<Text style={styles.noPostText}>No posts to show</Text>}
+        contentContainerStyle={{ paddingBottom: 20 }}
       />
     </SafeAreaView>
   );
@@ -240,16 +253,10 @@ const OtherUserProfileScreen = () => {
 
 export default OtherUserProfileScreen;
 
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  container: { flex: 1, backgroundColor: 'white' },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -259,57 +266,26 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ddd',
     justifyContent: 'space-between',
   },
-  backArrow: {
-    fontSize: 26,
-    color: '#00c26f',
-    fontWeight: 'bold',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  profileSection: {
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  userName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginTop: 10,
-  },
+  backArrow: { fontSize: 26, color: '#00c26f', fontWeight: 'bold' },
+  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },
+  profileSection: { alignItems: 'center', marginTop: 20, marginBottom: 20 },
+  userName: { fontSize: 22, fontWeight: 'bold', marginTop: 10 },
   userBio: {
     fontSize: 14,
     color: '#7c7c7c',
     textAlign: 'center',
     marginTop: 5,
   },
-  statsContainer: {
-    flexDirection: 'row',
-    marginTop: 10,
-  },
-  statBox: {
-    alignItems: 'center',
-    marginHorizontal: 15,
-  },
-  statNumber: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  statLabel: {
-    fontSize: 14,
-    color: '#888',
-  },
+  statsContainer: { flexDirection: 'row', marginTop: 10 },
+  statBox: { alignItems: 'center', marginHorizontal: 15 },
+  statNumber: { fontSize: 18, fontWeight: 'bold' },
+  statLabel: { fontSize: 14, color: '#888' },
   followButton: {
     marginTop: 15,
-    backgroundColor: '#00c26f',
-    paddingHorizontal: 20,
+    paddingHorizontal: 30,
     paddingVertical: 8,
-    borderRadius: 6,
+    backgroundColor: '#00c26f',
+    borderRadius: 20,
   },
-  followText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
+  followText: { color: 'white', fontWeight: 'bold' },
 });

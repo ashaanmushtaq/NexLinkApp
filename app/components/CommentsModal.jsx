@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, TouchableWithoutFeedback, Alert } from 'react-native';
+import { Modal, View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, TouchableWithoutFeedback, Alert, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Avatar from './Avatar'; // same as in PostCard
 import { getComments, postComment, deleteComment } from '../../config/comments';
+import useSendNotification from '../../context/useSendNotification';
 
 dayjs.extend(relativeTime);
 
 const CommentsModal = ({ visible, onClose, postId, user, onCommentPosted, onCommentCountChanged }) => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
+
+  const sendNotification = useSendNotification();
 
   useEffect(() => {
     if (postId) {
@@ -37,16 +40,32 @@ const CommentsModal = ({ visible, onClose, postId, user, onCommentPosted, onComm
       console.log('User not logged in');
       return;
     }
-
+  
     if (newComment.trim()) {
       try {
+        // Ensure correct parameters are passed to postComment function
         await postComment(postId, user.uid, user.displayName, newComment.trim(), user.photoURL);
+
+        // Clear input after posting
         setNewComment('');
+  
+        // Reload comments to update UI
         await loadComments();
-        onCommentPosted && onCommentPosted();
+  
+        // Call the callback function to notify parent component
+        if (onCommentPosted) {
+          onCommentPosted();
+        }
+  
+        // Send notification only if the comment is not by the post owner
+        // if (post.userId !== authUser.uid) {
+        //   await sendNotification(toUserId, 'comment your post', postId, senderName, post.caption);
+        // }
       } catch (error) {
-        console.log('Error posting comment:', error);
+        console.log('Error posting comment:', error); // Debug log
       }
+    } else {
+      console.log('Comment is empty');
     }
   };
 
@@ -101,7 +120,10 @@ const CommentsModal = ({ visible, onClose, postId, user, onCommentPosted, onComm
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.modalOverlay}>
           <TouchableWithoutFeedback>
-            <View style={styles.commentsBox}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              style={styles.commentsBox}
+            >
               <FlatList
                 data={comments}
                 keyExtractor={(item) => item.id}
@@ -115,12 +137,13 @@ const CommentsModal = ({ visible, onClose, postId, user, onCommentPosted, onComm
                   value={newComment}
                   onChangeText={setNewComment}
                   style={styles.input}
+                  onFocus={() => {}}
                 />
                 <TouchableOpacity onPress={handlePostComment} style={styles.postBtn}>
                   <Text style={styles.postBtnText}>Post</Text>
                 </TouchableOpacity>
               </View>
-            </View>
+            </KeyboardAvoidingView>
           </TouchableWithoutFeedback>
         </View>
       </TouchableWithoutFeedback>

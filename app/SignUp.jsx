@@ -32,11 +32,12 @@ export default function SignUp() {
         await updateProfile(user, { displayName: userName });
         console.log("Profile updated");
 
-        // Save user data to Firestore (users collection)
-        await setDoc(doc(db, "users", user.uid), {
+        // Store displayName_lower for backend use only
+        const userData = {
           uid: user.uid,
           email: user.email,
           displayName: userName,
+          displayName_lower: userName.toLowerCase(),
           photoURL: user.photoURL || "",
           phoneNumber: user.phoneNumber || "",
           bio: "",
@@ -49,7 +50,10 @@ export default function SignUp() {
           interests: [],
           username: "",
           coverPhoto: ""
-        });
+        };
+
+        // Save user data to Firestore (users collection)
+        await setDoc(doc(db, "users", user.uid), userData);
         console.log("User document created in Firestore");
 
         // Save to local storage

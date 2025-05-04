@@ -1,5 +1,5 @@
 // service/postService.js
-import { collection,where, getDocs, query, orderBy, limit as limitDocs } from "firebase/firestore";
+import { collection, where, getDocs, getDoc, doc, query, orderBy, limit as limitDocs } from "firebase/firestore";
 import { db } from "../config/FirebaseConfig"; // adjust path if needed
 
 // Fetch Posts by User
@@ -40,3 +40,21 @@ export const fetchPost = async (limitCount = 10) => {
     return { success: false, message: "Could not fetch the posts." };
   }
 };
+
+export const fetchSinglePost = async (postId) => {
+  try {
+    const postRef = doc(db, 'posts', postId);
+    const postSnap = await getDoc(postRef);
+
+    if (postSnap.exists()) {
+      return { success: true, data: { id: postSnap.id, ...postSnap.data() } };
+    } else {
+      return { success: false, message: 'Post not found' };
+    }
+  } catch (error) {
+    console.error('Fetch single post error:', error);
+    return { success: false, message: 'Error fetching post' };
+  }
+};
+
+

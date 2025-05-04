@@ -1,3 +1,4 @@
+// comments.js
 import { db } from './FirebaseConfig';
 import {
   collection,
@@ -11,7 +12,6 @@ import {
   getCountFromServer
 } from 'firebase/firestore';
 
-// Add Comment
 export const postComment = async (postId, userId, userName, text) => {
   try {
     const commentsRef = collection(db, 'posts', postId, 'comments');
@@ -27,7 +27,6 @@ export const postComment = async (postId, userId, userName, text) => {
   }
 };
 
-// Get Comments
 export const getComments = async (postId) => {
   try {
     const commentsRef = collection(db, 'posts', postId, 'comments');
@@ -40,7 +39,6 @@ export const getComments = async (postId) => {
   }
 };
 
-// Delete Comment
 export const deleteComment = async (postId, commentId) => {
   try {
     const commentDocRef = doc(db, 'posts', postId, 'comments', commentId);
@@ -51,7 +49,6 @@ export const deleteComment = async (postId, commentId) => {
   }
 };
 
-// Get Comment Count
 export const getCommentsCount = async (postId) => {
   try {
     const commentsRef = collection(db, 'posts', postId, 'comments');

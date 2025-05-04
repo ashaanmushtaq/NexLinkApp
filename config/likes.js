@@ -1,4 +1,5 @@
-import { db } from './FirebaseConfig';
+// likes.js
+import { db, auth } from './FirebaseConfig';
 import {
   collection,
   addDoc,
@@ -6,10 +7,26 @@ import {
   deleteDoc,
   doc,
   query,
-  where
+  where,
+  serverTimestamp
 } from 'firebase/firestore';
 
-// Like a Post
+export const sendNotification = async (receiverId, message) => {
+  try {
+    const sender = auth.currentUser;
+
+    await addDoc(collection(db, 'notifications'), {
+      userId: receiverId, // 💡 This is who will RECEIVE the notification
+      senderId: sender.uid,
+      senderImage: sender.photoURL || '',
+      message: message,
+      createdAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error('Error sending notification:', error);
+  }
+};
+
 export const likePost = async (postId, userId) => {
   try {
     const likeRef = collection(db, 'posts', postId, 'likes');
@@ -20,7 +37,6 @@ export const likePost = async (postId, userId) => {
   }
 };
 
-// Unlike a Post
 export const unlikePost = async (postId, userId) => {
   try {
     const likesRef = collection(db, 'posts', postId, 'likes');
@@ -35,7 +51,6 @@ export const unlikePost = async (postId, userId) => {
   }
 };
 
-// Is Post Liked
 export const isPostLiked = async (postId, userId) => {
   try {
     const likesRef = collection(db, 'posts', postId, 'likes');
@@ -48,7 +63,6 @@ export const isPostLiked = async (postId, userId) => {
   }
 };
 
-// Get Likes Count
 export const getLikesCount = async (postId) => {
   try {
     const likesRef = collection(db, 'posts', postId, 'likes');
@@ -59,4 +73,3 @@ export const getLikesCount = async (postId) => {
     return 0;
   }
 };
-
