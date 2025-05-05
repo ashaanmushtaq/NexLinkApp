@@ -1,25 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import CustomInput from './components/CustomInput';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../config/FirebaseConfig';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+
+// Validation schema using Yup
+const validationSchema = Yup.object().shape({
+  email: Yup.string().email('Invalid email').required('Email is required'),
+});
 
 export default function ForgetPassword() {
-  const [email, setEmail] = useState('');
   const router = useRouter();
 
-  const handleResetPassword = async () => {
-    if (!email) {
-      Alert.alert('Error', 'Please enter your email');
-      return;
-    }
-
+  const handleResetPassword = async (values, { resetForm }) => {
     try {
-      await sendPasswordResetEmail(auth, email);
+      await sendPasswordResetEmail(auth, values.email);
       Alert.alert('Success', 'Reset link sent to your email');
-      setEmail('');
+      resetForm();
     } catch (error) {
       Alert.alert('Error', error.message);
     }
@@ -37,18 +38,32 @@ export default function ForgetPassword() {
       <Text style={styles.title}>Forgot Password</Text>
       <Text style={styles.subTitle}>Enter your email to reset it</Text>
 
-      <CustomInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        iconName="mail"
-      />
+      <Formik
+        initialValues={{ email: '' }}
+        validationSchema={validationSchema}
+        onSubmit={handleResetPassword}
+      >
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+          <>
+            <CustomInput
+              placeholder="Email"
+              value={values.email}
+              onChangeText={handleChange('email')}
+              onBlur={handleBlur('email')}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              iconName="mail"
+            />
+            {touched.email && errors.email && (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            )}
 
-      <TouchableOpacity style={styles.btn} onPress={handleResetPassword}>
-        <Text style={styles.btnText}>Send Reset Link</Text>
-      </TouchableOpacity>
+            <TouchableOpacity style={styles.btn} onPress={handleSubmit}>
+              <Text style={styles.btnText}>Send Reset Link</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </Formik>
 
       <Text style={styles.link} onPress={() => router.push('/Login')}>
         Back to Login
@@ -110,5 +125,12 @@ const styles = StyleSheet.create({
     marginTop: 25,
     textAlign: 'center',
     fontWeight: 'bold',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 13,
+    marginTop: -10,
+    marginBottom: 10,
+    alignSelf: 'flex-start',
   },
 });

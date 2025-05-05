@@ -8,84 +8,73 @@ import { doc, setDoc } from "firebase/firestore";
 import { db } from './../config/FirebaseConfig';
 import { setLocalStorage } from '../service/Storage';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+
+const SignUpSchema = Yup.object().shape({
+  userName: Yup.string().required('Full Name is required'),
+  email: Yup.string().email('Invalid email').required('Email is required'),
+  password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+});
 
 export default function SignUp() {
   const router = useRouter();
 
-  const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const onCreateAccount = async (values, { setSubmitting }) => {
+    const { userName, email, password } = values;
 
-  const onCreateAccount = () => {
-    if (!userName || !email || !password) {
-      Alert.alert("Sign up", "Please fill all the fields!");
-      return;
-    }
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-    console.log("Attempting to create account...");
+      await updateProfile(user, { displayName: userName });
 
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(async (userCredential) => {
-        const user = userCredential.user;
-        console.log("Account created:", user.uid);
+      const userData = {
+        uid: user.uid,
+        email: user.email,
+        displayName: userName,
+        displayName_lower: userName.toLowerCase(),
+        photoURL: user.photoURL || "",
+        phoneNumber: user.phoneNumber || "",
+        bio: "",
+        gender: "",
+        dob: "",
+        location: "",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        isOnline: true,
+        interests: [],
+        username: "",
+        coverPhoto: ""
+      };
 
-        // Update Firebase Auth profile
-        await updateProfile(user, { displayName: userName });
-        console.log("Profile updated");
+      await setDoc(doc(db, "users", user.uid), userData);
 
-        // Store displayName_lower for backend use only
-        const userData = {
-          uid: user.uid,
-          email: user.email,
-          displayName: userName,
-          displayName_lower: userName.toLowerCase(),
-          photoURL: user.photoURL || "",
-          phoneNumber: user.phoneNumber || "",
-          bio: "",
-          gender: "",
-          dob: "",
-          location: "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          isOnline: true,
-          interests: [],
-          username: "",
-          coverPhoto: ""
-        };
-
-        // Save user data to Firestore (users collection)
-        await setDoc(doc(db, "users", user.uid), userData);
-        console.log("User document created in Firestore");
-
-        // Save to local storage
-        await setLocalStorage('userDetail', {
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-        });
-        console.log("User saved in local storage");
-
-        if (Platform.OS === 'android') {
-          ToastAndroid.show('Account created successfully!', ToastAndroid.SHORT);
-        }
-
-        await router.replace('/(tabs)/HomeScreen'); // Navigate to home screen
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-
-        if (Platform.OS === 'android') {
-          if (errorCode === 'auth/email-already-in-use') {
-            ToastAndroid.show('Email already in use', ToastAndroid.SHORT);
-          } else {
-            ToastAndroid.show(error.message, ToastAndroid.SHORT);
-          }
-        } else {
-          Alert.alert("Sign Up Error", error.message);
-        }
-
-        console.error("Sign up error:", errorCode, error.message);
+      await setLocalStorage('userDetail', {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
       });
+
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('Account created successfully!', ToastAndroid.SHORT);
+      }
+
+      router.replace('/(tabs)/HomeScreen');
+    } catch (error) {
+      const errorCode = error.code;
+      if (Platform.OS === 'android') {
+        if (errorCode === 'auth/email-already-in-use') {
+          ToastAndroid.show('Email already in use', ToastAndroid.SHORT);
+        } else {
+          ToastAndroid.show(error.message, ToastAndroid.SHORT);
+        }
+      } else {
+        Alert.alert("Sign Up Error", error.message);
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -103,29 +92,47 @@ export default function SignUp() {
         Please fill the details to create an account
       </Text>
 
-      <CustomInput 
-        placeholder="Full Name" 
-        onChangeText={setUserName} 
-        iconName="user" 
-      />
+      <Formik
+        initialValues={{ userName: '', email: '', password: '' }}
+        validationSchema={SignUpSchema}
+        onSubmit={onCreateAccount}
+      >
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting }) => (
+          <>
+            <CustomInput
+              placeholder="Full Name"
+              onChangeText={handleChange('userName')}
+              onBlur={handleBlur('userName')}
+              value={values.userName}
+              iconName="user"
+              error={touched.userName && errors.userName}
+            />
 
-      <CustomInput 
-        placeholder="Email" 
-        onChangeText={setEmail} 
-        iconName="mail" 
-      />
+            <CustomInput
+              placeholder="Email"
+              onChangeText={handleChange('email')}
+              onBlur={handleBlur('email')}
+              value={values.email}
+              iconName="mail"
+              error={touched.email && errors.email}
+            />
 
-      <CustomInput 
-        placeholder="Password" 
-        secureTextEntry 
-        onChangeText={setPassword} 
-        iconName="lock" 
-      />
+            <CustomInput
+              placeholder="Password"
+              secureTextEntry
+              onChangeText={handleChange('password')}
+              onBlur={handleBlur('password')}
+              value={values.password}
+              iconName="lock"
+              error={touched.password && errors.password}
+            />
 
-      <TouchableOpacity style={styles.btn} onPress={onCreateAccount}>
-        <Text style={styles.btnText}>Sign up</Text>
-      </TouchableOpacity>
-
+            <TouchableOpacity style={styles.btn} onPress={handleSubmit} disabled={isSubmitting}>
+              <Text style={styles.btnText}>{isSubmitting ? 'Creating...' : 'Sign up'}</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </Formik>
 
       <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
         <Text style={[styles.link, { color: 'black' }]}>Already have an account?</Text>

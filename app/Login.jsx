@@ -1,48 +1,49 @@
 import { View, Text, StyleSheet, TouchableOpacity, Pressable, Alert } from 'react-native';
 import CustomInput from './components/CustomInput';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './../config/FirebaseConfig';
 import { setLocalStorage } from '../service/Storage';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 export default function Login() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
-  const onSignInClick = () => {
-    if (!email || !password) {
-      Alert.alert("Login", "Please fill all the fields!");
-      return;
+  const LoginSchema = Yup.object().shape({
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    password: Yup.string().min(6, 'Password too short').required('Password is required'),
+  });
+
+  const handleLogin = async (values, { setSubmitting }) => {
+    const { email, password } = values;
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      await setLocalStorage('userDetail', user);
+      console.log("User logged in:", user);
+
+      router.replace('/(tabs)/HomeScreen');
+    } catch (error) {
+      const errorCode = error.code;
+
+      if (errorCode === "auth/wrong-password") {
+        Alert.alert("Login", "Wrong password!");
+      } else if (errorCode === "auth/user-not-found") {
+        Alert.alert("Login", "User not found!");
+      } else if (errorCode === "auth/invalid-email") {
+        Alert.alert("Login", "Invalid email!");
+      } else {
+        Alert.alert("Login", "Something went wrong!");
+      }
+
+      console.error("Login error:", errorCode, error.message);
+    } finally {
+      setSubmitting(false);
     }
-
-    signInWithEmailAndPassword(auth, email, password)
-      .then(async (userCredential) => {
-        const user = userCredential.user;
-        console.log("User logged in:", user);
-
-        await setLocalStorage('userDetail', user);
-        console.log("Login successful, navigating now...");
-
-        await router.replace('/(tabs)/HomeScreen');
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-
-        if (errorCode === "auth/wrong-password") {
-          Alert.alert("Login", "Wrong password!");
-        } else if (errorCode === "auth/user-not-found") {
-          Alert.alert("Login", "User not found!");
-        } else if (errorCode === "auth/invalid-email") {
-          Alert.alert("Login", "Invalid email!");
-        } else {
-          Alert.alert("Login", "Something went wrong!");
-        }
-
-        console.error("Login error:", errorCode, error.message);
-      });
   };
 
   return (
@@ -58,30 +59,55 @@ export default function Login() {
       <Text style={styles.title}>Welcome Back</Text>
       <Text style={styles.subTitle}>Please login to continue</Text>
 
-      <CustomInput 
-        placeholder="Email" 
-        value={email} 
-        onChangeText={setEmail} 
-        iconName="mail"
-      />
+      <Formik
+        initialValues={{ email: '', password: '' }}
+        validationSchema={LoginSchema}
+        onSubmit={handleLogin}
+      >
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting }) => (
+          <>
+            <CustomInput
+              placeholder="Email"
+              value={values.email}
+              onChangeText={handleChange('email')}
+              onBlur={handleBlur('email')}
+              iconName="mail"
+            />
+            {touched.email && errors.email && (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            )}
 
-      <CustomInput 
-        placeholder="Password" 
-        secureTextEntry 
-        value={password} 
-        onChangeText={setPassword} 
-        iconName="lock"
-      />
+            <CustomInput
+              placeholder="Password"
+              secureTextEntry
+              value={values.password}
+              onChangeText={handleChange('password')}
+              onBlur={handleBlur('password')}
+              iconName="lock"
+            />
+            {touched.password && errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
 
-      <Text 
-        style={styles.link} 
-        onPress={() => router.push('/ForgetPassword')}>
-        Forgot Password?
-      </Text>
+            <Text
+              style={styles.link}
+              onPress={() => router.push('/ForgetPassword')}
+            >
+              Forgot Password?
+            </Text>
 
-      <TouchableOpacity style={styles.btn} onPress={onSignInClick}>
-        <Text style={styles.btnText}>Login</Text>
-      </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.btn}
+              onPress={handleSubmit}
+              disabled={isSubmitting}
+            >
+              <Text style={styles.btnText}>
+                {isSubmitting ? 'Logging in...' : 'Login'}
+              </Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </Formik>
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>Don't have an account?</Text>
@@ -99,7 +125,7 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor:'#fff'
+    backgroundColor: '#fff',
   },
   gradient: {
     position: 'absolute',
@@ -108,7 +134,7 @@ const styles = StyleSheet.create({
     width: '110%',
     borderBottomRightRadius: 1000,
     opacity: 1,
-  },  
+  },
   title: {
     fontSize: 34,
     fontWeight: 'bold',
@@ -134,14 +160,13 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 30,
     marginTop: 10,
-    width: '100%', // 👈 input ke barabar width
+    width: '100%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 5,
   },
-  
   btnText: {
     color: '#fff',
     fontSize: 18,
@@ -160,5 +185,13 @@ const styles = StyleSheet.create({
     color: '#00c26f',
     fontWeight: 'bold',
     marginLeft: 5,
+  },
+  errorText: {
+    color: 'red',
+    alignSelf: 'flex-start',
+    marginTop: -20,
+    marginBottom: 10,
+    marginLeft: 10,
+    fontSize: 12,
   },
 });

@@ -1,23 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import { auth } from '../../config/FirebaseConfig';
 import { reauthenticateWithCredential, EmailAuthProvider, updatePassword } from 'firebase/auth';
 import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import CustomInput from '../components/CustomInput'; // Import CustomInput
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import CustomInput from '../components/CustomInput';
+
+const validationSchema = Yup.object().shape({
+  currentPassword: Yup.string().required('Current password is required'),
+  newPassword: Yup.string().min(6, 'New password must be at least 6 characters').required('New password is required'),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('newPassword'), null], 'Passwords do not match')
+    .required('Confirm password is required'),
+});
 
 const ChangePassword = () => {
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const router = useRouter();
 
-  const handleChangePassword = async () => {
-    if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'New passwords do not match');
-      return;
-    }
-
+  const handleChangePassword = async (values, { resetForm }) => {
+    const { currentPassword, newPassword } = values;
     const user = auth.currentUser;
 
     if (user && user.email) {
@@ -26,9 +29,7 @@ const ChangePassword = () => {
         await reauthenticateWithCredential(user, credential);
         await updatePassword(user, newPassword);
         Alert.alert('Success', 'Password changed successfully');
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
+        resetForm();
         router.back();
       } catch (error) {
         Alert.alert('Error', error.message);
@@ -38,7 +39,7 @@ const ChangePassword = () => {
 
   return (
     <>
-      {/* Updated Custom Header */}
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
@@ -50,33 +51,44 @@ const ChangePassword = () => {
       <View style={styles.container}>
         <Text style={styles.heading}>Update Your Password</Text>
 
-        {/* Use CustomInput component for inputs */}
-        <CustomInput
-          placeholder="Current Password"
-          value={currentPassword}
-          iconName="key"
-          secureTextEntry
-          onChangeText={setCurrentPassword}
-        />
-        <CustomInput
-          placeholder="New Password"
-          value={newPassword}
-          iconName="lock"
-          secureTextEntry
-          onChangeText={setNewPassword}
-        />
-        <CustomInput
-          placeholder="Confirm New Password"
-          value={confirmPassword}
-          iconName="lock"
-          secureTextEntry
-          onChangeText={setConfirmPassword}
-        />
+        <Formik
+          initialValues={{ currentPassword: '', newPassword: '', confirmPassword: '' }}
+          validationSchema={validationSchema}
+          onSubmit={handleChangePassword}
+        >
+          {({ handleChange, handleSubmit, values, errors, touched }) => (
+            <>
+              <CustomInput
+                placeholder="Current Password"
+                iconName="key"
+                secureTextEntry
+                value={values.currentPassword}
+                onChangeText={handleChange('currentPassword')}
+                error={touched.currentPassword && errors.currentPassword}
+              />
+              <CustomInput
+                placeholder="New Password"
+                iconName="lock"
+                secureTextEntry
+                value={values.newPassword}
+                onChangeText={handleChange('newPassword')}
+                error={touched.newPassword && errors.newPassword}
+              />
+              <CustomInput
+                placeholder="Confirm New Password"
+                iconName="lock"
+                secureTextEntry
+                value={values.confirmPassword}
+                onChangeText={handleChange('confirmPassword')}
+                error={touched.confirmPassword && errors.confirmPassword}
+              />
 
-        {/* Updated button */}
-        <TouchableOpacity onPress={handleChangePassword} style={styles.btn}>
-          <Text style={styles.btnText}>Update Password</Text>
-        </TouchableOpacity>
+              <TouchableOpacity onPress={handleSubmit} style={styles.btn}>
+                <Text style={styles.btnText}>Update Password</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </Formik>
       </View>
     </>
   );
@@ -114,27 +126,18 @@ const styles = StyleSheet.create({
     marginBottom: 25,
     marginTop: 10,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 15,
-    fontSize: 16,
-  },
   btn: {
     backgroundColor: "#00c26f",
     paddingVertical: 15,
     borderRadius: 30,
     marginTop: 10,
-    width: '100%', // 👈 input ke barabar width
+    width: '100%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 5,
   },
-  
   btnText: {
     color: '#fff',
     fontSize: 18,

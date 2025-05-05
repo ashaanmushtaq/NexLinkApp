@@ -10,7 +10,8 @@ export default function CustomInput({
   value, 
   onChangeText, 
   label,
-  iconName
+  iconName,
+  error
 }) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -21,7 +22,7 @@ export default function CustomInput({
   return (
     <View style={styles.inputContainer}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <View style={styles.inputWrapper}>
+      <View style={[styles.inputWrapper, error && { borderColor: 'red' }]}>
         {iconName && (
           <AntDesign name={iconName} size={20} color="#7c7c7c" style={styles.icon} />
         )}
@@ -44,6 +45,7 @@ export default function CustomInput({
           </TouchableOpacity>
         )}
       </View>
+      {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
 }
@@ -87,5 +89,11 @@ const styles = StyleSheet.create({
   },
   eyeIcon: {
     padding: 4,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 13,
+    marginTop: 4,
+    marginLeft: 10,
   },
 });
