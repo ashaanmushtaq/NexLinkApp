@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router'; // Router for navigation
 import Avatar from '../components/Avatar'; // Assuming you have an Avatar component
 import { getAuth } from 'firebase/auth'; // Firebase Authentication to get current user
 import Ionicons from '@expo/vector-icons/Ionicons';
+import CustomInput from '../components/CustomInput';
 
 const SearchScreen = () => {
   const [searchText, setSearchText] = useState(''); // State for storing search text
@@ -87,11 +88,12 @@ const SearchScreen = () => {
         </TouchableOpacity>
         <Text style={styles.headerText}>Search Users</Text>
       </View>
-      <TextInput
+      <CustomInput
         placeholder="Search Users..."
         value={searchText}
         onChangeText={handleSearchTextChange} // Handle text input change
         style={styles.input}
+        iconName="search1"
       />
 
       {/* Show loading indicator when fetching users */}

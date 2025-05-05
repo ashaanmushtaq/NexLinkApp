@@ -160,34 +160,40 @@ const EditProfile = () => {
           </View>
 
           <View style={styles.inputGroup}>
-            <CustomInput
-              placeholder="Enter your Name"
-              value={userInfo.name}
-              onChangeText={(value) => handleInputChange('name', value)}
-            />
-            <CustomInput
-              placeholder="Enter your Phone Number"
-              value={userInfo.phoneNumber}
-              onChangeText={(value) => handleInputChange('phoneNumber', value)}
-            />
-            <CustomInput
-              placeholder="Enter your Address"
-              value={userInfo.address}
-              onChangeText={(value) => handleInputChange('address', value)}
-            />
-            <CustomInput
-              placeholder="Enter your Bio"
-              value={userInfo.bio}
-              multiline={true}
-              onChangeText={(value) => handleInputChange('bio', value)}
-            />
+          <CustomInput
+            placeholder="Enter your Name"
+            value={userInfo.name}
+            iconName="user"
+            onChangeText={(value) => handleInputChange('name', value)}
+          />
+          <CustomInput
+            placeholder="Enter your Phone Number"
+            value={userInfo.phoneNumber}
+            iconName="phone"
+            onChangeText={(value) => handleInputChange('phoneNumber', value)}
+          />
+          <CustomInput
+            placeholder="Enter your Address"
+            value={userInfo.address}
+            iconName="home"
+            onChangeText={(value) => handleInputChange('address', value)}
+          />
+          <CustomInput
+            placeholder="Enter your Bio"
+            // value={userInfo.bio}
+            // multiline={true}
+            iconName="edit"
+            onChangeText={(value) => handleInputChange('bio', value)}
+          />
+
           </View>
 
           <View style={styles.buttonWrapper}>
-            <TouchableOpacity style={styles.btn} onPress={onSubmit} >
-              <Text style={{color:"white", textAlign:"center", fontSize:17}}>Save Changes</Text>
+            <TouchableOpacity style={styles.btn} onPress={onSubmit}>
+              <Text style={styles.btnText}>Save Changes</Text>
             </TouchableOpacity>
           </View>
+
         </View>
       </ScrollView>
     </View>
@@ -270,14 +276,25 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     marginTop: 30,
-    alignItems: 'center',
-    color:"#00c26f"
   },
-  btn:{
-    marginTop:15, 
-    backgroundColor:"#00c26f", 
-    padding:10, 
-    borderRadius:5, 
-    color:"white"
+  btn: {
+    backgroundColor: "#00c26f",
+    paddingVertical: 15,
+    borderRadius: 30,
+    marginTop: 10,
+    width: '100%', // 👈 input ke barabar width
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
   },
+  
+  btnText: {
+    color: '#fff',
+    fontSize: 18,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  
 });

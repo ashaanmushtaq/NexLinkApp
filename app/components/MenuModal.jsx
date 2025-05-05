@@ -13,6 +13,9 @@ import {
   unfollowUser,
   isFollowingUser,
 } from '../../service/followService';
+import { getDoc, doc } from 'firebase/firestore';
+import { db } from '../../config/FirebaseConfig';
+import useSendNotification from '../../context/useSendNotification';
 
 const MenuModal = ({
   visible,
@@ -22,31 +25,76 @@ const MenuModal = ({
   onViewProfile,
   onUnfollow,
   onDelete,
-  onHide, // Added onHide prop to handle hiding post
+  onHide,
 }) => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(false);
   const isOwnPost = post?.userId === authUser?.uid;
+  const sendNotification = useSendNotification();
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchFollowStatus = async () => {
       if (!isOwnPost && authUser?.uid && post?.userId) {
-        const result = await isFollowingUser(authUser.uid, post.userId);
-        setIsFollowing(result);
+        try {
+          const result = await isFollowingUser(authUser.uid, post.userId);
+          if (isMounted) setIsFollowing(result);
+        } catch (err) {
+          console.log('Error fetching follow status:', err);
+        }
       }
     };
-    if (visible) fetchFollowStatus();
-  }, [visible]);
+
+    if (visible) {
+      fetchFollowStatus();
+    }
+
+    return () => {
+      isMounted = false;
+      setIsFollowing(false);
+    };
+  }, [visible, authUser?.uid, post?.userId]);
 
   const toggleFollow = async () => {
     if (!authUser?.uid || !post?.userId) return;
     setLoading(true);
     try {
       if (isFollowing) {
+        // Unfollow user
         await unfollowUser(authUser.uid, post.userId);
         onUnfollow?.(post.userId);
+  
+        // ✅ Send unfollow notification
+        const currentUserRef = doc(db, 'users', authUser.uid);
+        const senderSnap = await getDoc(currentUserRef);
+        const senderName = senderSnap.exists() ? senderSnap.data().displayName : 'Someone';
+  
+        // Send unfollow notification
+        await sendNotification(
+          post.userId,
+          'stopped following you',
+          '', // No postId
+          senderName,
+          '' // No caption
+        );
       } else {
+        // Follow user
         await followUser(authUser.uid, post.userId);
+  
+        // ✅ Send follow notification
+        const currentUserRef = doc(db, 'users', authUser.uid);
+        const senderSnap = await getDoc(currentUserRef);
+        const senderName = senderSnap.exists() ? senderSnap.data().displayName : 'Someone';
+  
+        // Send follow notification
+        await sendNotification(
+          post.userId,
+          'started following you',
+          '', // No postId
+          senderName,
+          '' // No caption
+        );
       }
       setIsFollowing((prev) => !prev);
     } catch (err) {
@@ -55,11 +103,13 @@ const MenuModal = ({
       setLoading(false);
     }
   };
+  
 
   const renderOption = (label, onPress, iconName, destructive = false) => (
     <TouchableOpacity
       style={[styles.option, destructive && styles.destructive]}
       onPress={onPress}
+      disabled={loading}
     >
       <AntDesign
         name={iconName}
@@ -84,7 +134,7 @@ const MenuModal = ({
 
           {!isOwnPost &&
             renderOption(
-              loading ? 'Updating...' : isFollowing ? 'Unfollow' : 'Follow',
+              loading ? 'Please wait...' : isFollowing ? 'Unfollow' : 'Follow',
               toggleFollow,
               isFollowing ? 'deleteuser' : 'adduser'
             )}
@@ -97,7 +147,7 @@ const MenuModal = ({
 
           {renderOption('Hide Post', () => {
             onClose();
-            onHide(post?.id); // Call onHide to hide the post locally
+            onHide(post?.id);
           }, 'eyeo')}
 
           {renderOption('Cancel', onClose, 'close')}

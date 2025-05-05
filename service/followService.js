@@ -16,6 +16,20 @@ export const isFollowing = async (authUserId, targetUserId) => {
   }
 };
 
+export const isFollowingUser = async (authUserId, targetUserId) => {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', authUserId));
+    if (userDoc.exists()) {
+      const following = userDoc.data().following || [];
+      return following.includes(targetUserId);
+    }
+    return false;
+  } catch (error) {
+    console.log('Follow status fetch error:', error);
+    return false;
+  }
+};
+
 // Follow user
 export const followUser = async (authUserId, targetUserId) => {
   try {

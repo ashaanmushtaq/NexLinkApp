@@ -7,6 +7,7 @@ import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from "firebase/firestore";
 import { db } from './../config/FirebaseConfig';
 import { setLocalStorage } from '../service/Storage';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function SignUp() {
   const router = useRouter();
@@ -89,19 +90,42 @@ export default function SignUp() {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={['#00c26f', 'rgba(0, 194, 111, 0.1)']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradient}
+      />
+
       <Text style={[styles.title, { marginTop: 15, marginBottom: 4 }]}>Let's</Text>
       <Text style={styles.title}>Get Started</Text>
       <Text style={[styles.subTitle, { fontSize: 14, marginBottom: 10, marginTop: 15 }]}>
         Please fill the details to create an account
       </Text>
 
-      <CustomInput placeholder="Full Name" onChangeText={setUserName} />
-      <CustomInput placeholder="Email" onChangeText={setEmail} />
-      <CustomInput placeholder="Password" secureTextEntry onChangeText={setPassword} />
+      <CustomInput 
+        placeholder="Full Name" 
+        onChangeText={setUserName} 
+        iconName="user" 
+      />
+
+      <CustomInput 
+        placeholder="Email" 
+        onChangeText={setEmail} 
+        iconName="mail" 
+      />
+
+      <CustomInput 
+        placeholder="Password" 
+        secureTextEntry 
+        onChangeText={setPassword} 
+        iconName="lock" 
+      />
 
       <TouchableOpacity style={styles.btn} onPress={onCreateAccount}>
-        <Text style={{ color: "white", textAlign: "center", fontSize: 17 }}>Sign up</Text>
+        <Text style={styles.btnText}>Sign up</Text>
       </TouchableOpacity>
+
 
       <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
         <Text style={[styles.link, { color: 'black' }]}>Already have an account?</Text>
@@ -114,9 +138,54 @@ export default function SignUp() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, justifyContent: 'center' },
-  title: { fontSize: 28, fontWeight: 'bold', marginBottom: 20 },
-  subTitle: { fontSize: 26, fontWeight: 'bold', color: 'grey', marginBottom: 20 },
-  btn: { marginTop: 15, backgroundColor: "#00c26f", padding: 10, borderRadius: 5 },
-  link: { marginTop: 15, color: "#00c26f", textAlign: 'center' },
+  container: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+  gradient: {
+    position: 'absolute',
+    top: 0,
+    height: '45%',
+    width: '110%',
+    borderBottomRightRadius: 1000,
+    opacity: 1,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#111',
+    textAlign: 'center',
+  },
+  subTitle: {
+    fontSize: 15,
+    color: '#777',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  btn: {
+    backgroundColor: "#00c26f",
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: 30,
+    marginTop: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  btnText: {
+    color: '#fff',
+    fontSize: 18,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  link: {
+    marginTop: 15,
+    color: "#00c26f",
+    textAlign: 'center',
+    fontWeight: '500',
+  },
 });

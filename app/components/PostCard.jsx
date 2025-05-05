@@ -17,6 +17,7 @@ import CommentsModal from '../components/CommentsModal';
 import { useRouter } from 'expo-router';
 import { auth, db } from '../../config/FirebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
+import { doc, deleteDoc } from 'firebase/firestore';
 
 import {
   followUser,
@@ -84,27 +85,26 @@ const PostCard = ({ post, user, handleUnfollow, handleDelete, handleHide }) => {
 
   const handleLikeToggle = async (postId, toUserId, senderName) => {
     if (!authUser?.uid || !post?.id) return;
-  
+
     try {
       setLoading(true);
       Animated.sequence([
         Animated.spring(scaleAnim, { toValue: 1.3, useNativeDriver: true }),
         Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true }),
       ]).start();
-  
+
       if (liked) {
         await unlikePost(post.id, authUser.uid);
         setLikesCount((prev) => Math.max(prev - 1, 0));
       } else {
         await likePost(post.id, authUser.uid);
         setLikesCount((prev) => prev + 1);
-  
-        // Only send notification if the post owner is not the authUser
+
         if (post.userId !== authUser.uid) {
           await sendNotification(toUserId, 'liked your post', postId, senderName, post.caption);
         }
       }
-  
+
       setLiked(!liked);
     } catch (err) {
       console.error('Error toggling like:', err);
@@ -112,7 +112,6 @@ const PostCard = ({ post, user, handleUnfollow, handleDelete, handleHide }) => {
       setLoading(false);
     }
   };
-  
 
   const onViewProfile = (userId) => {
     setOptionsVisible(false);
@@ -122,7 +121,8 @@ const PostCard = ({ post, user, handleUnfollow, handleDelete, handleHide }) => {
   const handleDeletePost = async () => {
     if (!post?.id) return;
     try {
-      await db.collection('posts').doc(post.id).delete();
+      const postRef = doc(db, 'posts', post.id);
+      await deleteDoc(postRef);
       handleDelete(post.id);
     } catch (err) {
       console.error('Error deleting post:', err);
@@ -138,7 +138,6 @@ const PostCard = ({ post, user, handleUnfollow, handleDelete, handleHide }) => {
 
   return (
     <View style={styles.postCard}>
-      {/* Header */}
       <View style={styles.postHeader}>
         <Avatar uri={post?.userPhoto} size={32} rounded={16} />
         <View>
@@ -150,7 +149,6 @@ const PostCard = ({ post, user, handleUnfollow, handleDelete, handleHide }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Media */}
       {post?.mediaUrl && post.mediaType === 'image' && (
         <RNImage source={{ uri: post.mediaUrl }} style={styles.postImage} resizeMode="cover" />
       )}
@@ -160,10 +158,8 @@ const PostCard = ({ post, user, handleUnfollow, handleDelete, handleHide }) => {
         </View>
       )}
 
-      {/* Caption */}
       <Text style={styles.caption}>{post?.caption}</Text>
 
-      {/* Actions */}
       <View style={styles.actionsRow}>
         <TouchableOpacity
           onPress={() => handleLikeToggle(post.id, post.userId, authUser?.displayName)}
@@ -186,7 +182,6 @@ const PostCard = ({ post, user, handleUnfollow, handleDelete, handleHide }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Modals */}
       <MenuModal
         visible={optionsVisible}
         onClose={() => setOptionsVisible(false)}
@@ -210,6 +205,9 @@ const PostCard = ({ post, user, handleUnfollow, handleDelete, handleHide }) => {
 };
 
 export default PostCard;
+
+// ...styles remain unchanged
+
 
 const styles = StyleSheet.create({
   postCard: {

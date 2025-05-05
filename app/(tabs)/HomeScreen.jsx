@@ -1,40 +1,41 @@
 import { FlatList, StyleSheet, Text, View, Alert, Pressable, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState, useCallback } from 'react';
-import { signOut } from 'firebase/auth';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../config/FirebaseConfig';
 import { useRouter } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Avatar from '../components/Avatar';
 import { fetchPost } from '../../service/postService';
 import PostCard from '../components/PostCard';
-import { onAuthStateChanged } from "firebase/auth";
 import { useFocusEffect } from '@react-navigation/native';
 
 const HomeScreen = ({ user }) => {
   const router = useRouter();
   const [posts, setPosts] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true); // State to manage loading
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasNewNotifications, setHasNewNotifications] = useState(false);
+  const [allLoaded, setAllLoaded] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setCurrentUser(user);
-        getPost(); // Fetch posts when user is logged in
+        getPost();
       } else {
         setCurrentUser(null);
-        setLoading(false); // Stop loading if no user
+        setLoading(false);
       }
     });
 
     return () => unsubscribe();
   }, []);
 
-  // Refetch posts when screen is focused (user returns)
   useFocusEffect(
     useCallback(() => {
       if (currentUser) {
-        setLoading(true); // Set loading to true when the screen is focused
+        setLoading(true);
         getPost();
       }
     }, [currentUser])
@@ -43,11 +44,32 @@ const HomeScreen = ({ user }) => {
   const getPost = async () => {
     const res = await fetchPost();
     if (res.success) {
-      setPosts(res.data);
+      setPosts(res.data || []);
+      setAllLoaded(res.data.length === 0); // if no data, set all loaded
     } else {
       Alert.alert("Error", res.message);
     }
-    setLoading(false); // Stop loading once data is fetched
+    setLoading(false);
+  };
+
+  const loadMorePosts = async () => {
+    if (loadingMore || allLoaded) return;
+
+    setLoadingMore(true);
+    const res = await fetchPost(); // This should ideally support pagination
+    if (res.success && res.data.length > 0) {
+      // Avoid duplicates by filtering
+      const newPosts = res.data.filter(
+        (post) => !posts.some((existing) => existing.id === post.id)
+      );
+      setPosts((prev) => [...prev, ...newPosts]);
+      if (newPosts.length === 0) {
+        setAllLoaded(true); // no new posts means we are done
+      }
+    } else {
+      setAllLoaded(true);
+    }
+    setLoadingMore(false);
   };
 
   const handleLogout = async () => {
@@ -59,14 +81,22 @@ const HomeScreen = ({ user }) => {
     }
   };
 
+  const handleNotificationClick = () => {
+    setHasNewNotifications(false);
+    router.push('/main/NotificationScreen');
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>NexLink</Text>
         <View style={styles.icons}>
-          <Pressable onPress={() => router.push('/main/NotificationScreen')}>
+          <Pressable onPress={handleNotificationClick}>
             <FontAwesome name="heart-o" size={24} color="#494949" />
+            {hasNewNotifications && (
+              <View style={styles.notificationDot} />
+            )}
           </Pressable>
           <Pressable onPress={() => router.push('../main/NewPost')}>
             <FontAwesome name="plus-square-o" size={24} color="#494949" />
@@ -82,7 +112,7 @@ const HomeScreen = ({ user }) => {
         </View>
       </View>
 
-      {/* Loading Indicator */}
+      {/* Content */}
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#00c26f" />
@@ -91,7 +121,7 @@ const HomeScreen = ({ user }) => {
       ) : (
         <FlatList
           data={posts}
-          keyExtractor={(item, index) => item.id || index.toString()}
+          keyExtractor={(item, index) => `${item.id || `post-${index}`}`}
           renderItem={({ item }) => (
             <PostCard
               post={item}
@@ -103,8 +133,22 @@ const HomeScreen = ({ user }) => {
               navigateToComments={(postId) => router.push(`/comments/${postId}`)}
             />
           )}
-          ListEmptyComponent={<Text style={styles.noPostText}>No posts to show</Text>}
-          contentContainerStyle={{ paddingBottom: 20 }}
+          onEndReached={loadMorePosts}
+          onEndReachedThreshold={0.2}
+          ListFooterComponent={
+            loadingMore ? (
+              <View style={styles.footerLoading}>
+                <ActivityIndicator size="small" color="#00c26f" />
+                <Text style={styles.loadingText}>Loading more...</Text>
+              </View>
+            ) : allLoaded && posts.length > 0 ? (
+              <Text style={styles.endMessage}>No more posts yet.</Text>
+            ) : null
+          }
+          ListEmptyComponent={
+            <Text style={styles.noPostText}>No posts to show.</Text>
+          }
+          contentContainerStyle={{ paddingBottom: 40 }}
         />
       )}
     </View>
@@ -137,6 +181,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 18,
   },
+  notificationDot: {
+    position: 'absolute',
+    right: -6,
+    top: -6,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'red',
+  },
   noPostText: {
     textAlign: 'center',
     marginTop: 20,
@@ -150,5 +203,14 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     color: '#aaa',
+  },
+  footerLoading: {
+    marginVertical: 10,
+    alignItems: 'center',
+  },
+  endMessage: {
+    textAlign: 'center',
+    color: '#999',
+    padding: 10,
   },
 });

@@ -33,30 +33,32 @@ const NotificationScreen = () => {
 
   const handleNotificationPress = (item) => {
     if (item?.postId) {
+      // Navigate to the specific post screen
       router.push(`/post/${item.postId}`);
+    } else if (item?.fromUserId) {
+      // Navigate to the user's profile who triggered the notification (e.g., follower)
+      router.push(`/main/${item.fromUserId}`);
     }
   };
-  
 
   const renderItem = ({ item }) => {
-    console.log(item); // This will now have 'message'
     return (
-      <TouchableOpacity onPress={() => handleNotificationPress(item)}>
-        <View style={styles.notificationCard}>
-          <Avatar uri={item.senderImage || null} size={42} />
-          <View style={styles.messageContainer}>
-            <Text style={styles.senderName}>{item.senderName || 'Unknown'}</Text>
-            <Text style={styles.message}>{item.message}</Text> {/* Displaying the message here */}
-            <Text style={styles.time}>
-              {item.createdAt?.toDate?.().toLocaleString?.() || ''}
-            </Text>
-          </View>
+      <TouchableOpacity
+        onPress={() => handleNotificationPress(item)}
+        style={styles.notificationCard}
+        activeOpacity={0.8}
+      >
+        <Avatar uri={item.senderImage || null} size={42} />
+        <View style={styles.messageContainer}>
+          <Text style={styles.senderName}>{item.senderName || 'Unknown'}</Text>
+          <Text style={styles.message}>{item.message}</Text>
+          <Text style={styles.time}>
+            {item.createdAt?.toDate?.().toLocaleString?.() || ''}
+          </Text>
         </View>
       </TouchableOpacity>
     );
   };
-  
-
 
   return (
     <>

@@ -28,8 +28,7 @@ import PostCard from '../components/PostCard';
 import { getLikesCount } from '../../config/likes';
 import { getCommentsCount } from '../../config/comments';
 import Ionicons from '@expo/vector-icons/Ionicons';
-
-// ... your imports stay the same
+import useSendNotification from '../../context/useSendNotification'; // ✅ Import your notification hook
 
 const OtherUserProfileScreen = () => {
   const { userId } = useLocalSearchParams();
@@ -39,6 +38,8 @@ const OtherUserProfileScreen = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [authUser, setAuthUser] = useState(null);
+
+  const sendNotification = useSendNotification(); // ✅ use the notification hook
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -162,6 +163,18 @@ const OtherUserProfileScreen = () => {
         await updateDoc(otherUserRef, {
           followers: arrayUnion(currentUid),
         });
+
+        // ✅ Send notification to followed user
+        const senderSnap = await getDoc(currentUserRef);
+        const senderName = senderSnap.exists() ? senderSnap.data().displayName : 'Someone';
+
+        await sendNotification(
+          userId,
+          'started following you',
+          '', // No postId in this case
+          senderName,
+          '' // No caption
+        );
       }
 
       setIsFollowing(!isFollowing);
@@ -253,7 +266,6 @@ const OtherUserProfileScreen = () => {
 
 export default OtherUserProfileScreen;
 
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: 'white' },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
@@ -288,4 +300,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   followText: { color: 'white', fontWeight: 'bold' },
+  noPostText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    color: '#999',
+  },
 });

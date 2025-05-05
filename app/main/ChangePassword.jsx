@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { View, Text, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import { auth } from '../../config/FirebaseConfig';
 import { reauthenticateWithCredential, EmailAuthProvider, updatePassword } from 'firebase/auth';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import CustomInput from '../components/CustomInput'; // Import CustomInput
 
 const ChangePassword = () => {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -49,30 +50,32 @@ const ChangePassword = () => {
       <View style={styles.container}>
         <Text style={styles.heading}>Update Your Password</Text>
 
-        <TextInput
+        {/* Use CustomInput component for inputs */}
+        <CustomInput
           placeholder="Current Password"
           value={currentPassword}
-          onChangeText={setCurrentPassword}
+          iconName="key"
           secureTextEntry
-          style={styles.input}
+          onChangeText={setCurrentPassword}
         />
-        <TextInput
+        <CustomInput
           placeholder="New Password"
           value={newPassword}
-          onChangeText={setNewPassword}
+          iconName="lock"
           secureTextEntry
-          style={styles.input}
+          onChangeText={setNewPassword}
         />
-        <TextInput
+        <CustomInput
           placeholder="Confirm New Password"
           value={confirmPassword}
-          onChangeText={setConfirmPassword}
+          iconName="lock"
           secureTextEntry
-          style={styles.input}
+          onChangeText={setConfirmPassword}
         />
 
-        <TouchableOpacity onPress={handleChangePassword} style={styles.button}>
-          <Text style={styles.buttonText}>Update Password</Text>
+        {/* Updated button */}
+        <TouchableOpacity onPress={handleChangePassword} style={styles.btn}>
+          <Text style={styles.btnText}>Update Password</Text>
         </TouchableOpacity>
       </View>
     </>
@@ -119,17 +122,23 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     fontSize: 16,
   },
-  button: {
-    backgroundColor: '#00c26f',
-    padding: 16,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 20,
-    elevation: 2,
+  btn: {
+    backgroundColor: "#00c26f",
+    paddingVertical: 15,
+    borderRadius: 30,
+    marginTop: 10,
+    width: '100%', // 👈 input ke barabar width
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
   },
-  buttonText: {
+  
+  btnText: {
     color: '#fff',
-    fontWeight: '600',
-    fontSize: 16,
+    fontSize: 18,
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
 });
