@@ -206,7 +206,6 @@ const PostCard = ({ post, user, handleUnfollow, handleDelete, handleHide }) => {
 
 export default PostCard;
 
-// ...styles remain unchanged
 
 
 const styles = StyleSheet.create({

@@ -61,39 +61,33 @@ const MenuModal = ({
     setLoading(true);
     try {
       if (isFollowing) {
-        // Unfollow user
         await unfollowUser(authUser.uid, post.userId);
         onUnfollow?.(post.userId);
-  
-        // ✅ Send unfollow notification
+
         const currentUserRef = doc(db, 'users', authUser.uid);
         const senderSnap = await getDoc(currentUserRef);
         const senderName = senderSnap.exists() ? senderSnap.data().displayName : 'Someone';
-  
-        // Send unfollow notification
+
         await sendNotification(
           post.userId,
           'stopped following you',
-          '', // No postId
+          '',
           senderName,
-          '' // No caption
+          ''
         );
       } else {
-        // Follow user
         await followUser(authUser.uid, post.userId);
-  
-        // ✅ Send follow notification
+
         const currentUserRef = doc(db, 'users', authUser.uid);
         const senderSnap = await getDoc(currentUserRef);
         const senderName = senderSnap.exists() ? senderSnap.data().displayName : 'Someone';
-  
-        // Send follow notification
+
         await sendNotification(
           post.userId,
           'started following you',
-          '', // No postId
+          '',
           senderName,
-          '' // No caption
+          ''
         );
       }
       setIsFollowing((prev) => !prev);
@@ -103,34 +97,56 @@ const MenuModal = ({
       setLoading(false);
     }
   };
-  
 
-  const renderOption = (label, onPress, iconName, destructive = false) => (
-    <TouchableOpacity
-      style={[styles.option, destructive && styles.destructive]}
-      onPress={onPress}
-      disabled={loading}
-    >
-      <AntDesign
-        name={iconName}
-        size={22}
-        color={destructive ? '#f44336' : '#3a3a3a'}
-        style={styles.icon}
-      />
-      <Text style={[styles.optionText, destructive && styles.destructiveText]}>
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
+  const renderOption = (label, onPress, iconName, options = {}) => {
+    const { destructive = false, cancel = false } = options;
+    return (
+      <TouchableOpacity
+        style={[
+          styles.option,
+          destructive && styles.destructive,
+          cancel && styles.cancelButton,
+        ]}
+        onPress={onPress}
+        disabled={loading}
+      >
+        <AntDesign
+          name={iconName}
+          size={22}
+          color={
+            destructive
+              ? '#f44336'
+              : cancel
+              ? '#888'
+              : '#3a3a3a'
+          }
+          style={styles.icon}
+        />
+        <Text
+          style={[
+            styles.optionText,
+            destructive && styles.destructiveText,
+            cancel && styles.cancelText,
+          ]}
+        >
+          {label}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <Modal transparent animationType="fade" visible={visible} onRequestClose={onClose}>
       <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose}>
         <TouchableOpacity activeOpacity={1} style={styles.modal}>
-          {renderOption('View Profile', () => {
-            onClose();
-            onViewProfile(post?.userId);
-          }, 'user')}
+          {renderOption(
+            'View Profile',
+            () => {
+              onClose();
+              onViewProfile(post?.userId);
+            },
+            'user'
+          )}
 
           {!isOwnPost &&
             renderOption(
@@ -140,17 +156,26 @@ const MenuModal = ({
             )}
 
           {isOwnPost &&
-            renderOption('Delete Post', () => {
+            renderOption(
+              'Delete Post',
+              () => {
+                onClose();
+                onDelete(post?.id);
+              },
+              'delete',
+              { destructive: true }
+            )}
+
+          {renderOption(
+            'Hide Post',
+            () => {
               onClose();
-              onDelete(post?.id);
-            }, 'delete', true)}
+              onHide(post?.id);
+            },
+            'eyeo'
+          )}
 
-          {renderOption('Hide Post', () => {
-            onClose();
-            onHide(post?.id);
-          }, 'eyeo')}
-
-          {renderOption('Cancel', onClose, 'close')}
+          {renderOption('Cancel', onClose, 'close', { cancel: true })}
         </TouchableOpacity>
       </TouchableOpacity>
     </Modal>
@@ -200,6 +225,13 @@ const styles = StyleSheet.create({
   destructiveText: {
     color: '#f44336',
     fontWeight: '700',
+  },
+  cancelButton: {
+    backgroundColor: '#f5f5f5',
+  },
+  cancelText: {
+    color: '#888',
+    fontWeight: '600',
   },
   icon: {
     marginLeft: 4,

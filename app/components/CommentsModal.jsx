@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, TouchableWithoutFeedback, Alert, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import {
+  Modal,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import Avatar from './Avatar'; // same as in PostCard
+import Avatar from './Avatar';
 import { getComments, postComment, deleteComment } from '../../config/comments';
 import useSendNotification from '../../context/useSendNotification';
 
@@ -16,56 +29,45 @@ const CommentsModal = ({ visible, onClose, postId, user, onCommentPosted, onComm
   const sendNotification = useSendNotification();
 
   useEffect(() => {
-    if (postId) {
+    if (postId && visible) {
       loadComments();
     }
-  }, [postId]);
+  }, [postId, visible]);
 
   const loadComments = async () => {
     try {
       const data = await getComments(postId);
       setComments(data);
-
-      // Pass the comment count to the parent
       if (onCommentCountChanged) {
         onCommentCountChanged(data.length);
       }
     } catch (error) {
-      console.log('Error loading comments:', error);
+      console.error('Error loading comments:', error);
     }
   };
 
   const handlePostComment = async () => {
+    Keyboard.dismiss();
     if (!user?.uid) {
-      console.log('User not logged in');
+      Alert.alert('Login Required', 'Please log in to post a comment.');
       return;
     }
-  
-    if (newComment.trim()) {
-      try {
-        // Ensure correct parameters are passed to postComment function
-        await postComment(postId, user.uid, user.displayName, newComment.trim(), user.photoURL);
 
-        // Clear input after posting
-        setNewComment('');
-  
-        // Reload comments to update UI
-        await loadComments();
-  
-        // Call the callback function to notify parent component
-        if (onCommentPosted) {
-          onCommentPosted();
-        }
-  
-        // Send notification only if the comment is not by the post owner
-        // if (post.userId !== authUser.uid) {
-        //   await sendNotification(toUserId, 'comment your post', postId, senderName, post.caption);
-        // }
-      } catch (error) {
-        console.log('Error posting comment:', error); // Debug log
-      }
-    } else {
-      console.log('Comment is empty');
+    const trimmedComment = newComment.trim();
+    if (!trimmedComment) {
+      Alert.alert('Empty Comment', 'Please enter some text.');
+      return;
+    }
+
+    try {
+      await postComment(postId, user.uid, user.displayName, trimmedComment, user.photoURL);
+      setNewComment('');
+      await loadComments();
+      if (onCommentPosted) onCommentPosted();
+
+      // 🔔 Send notification here if needed
+    } catch (error) {
+      console.error('Error posting comment:', error);
     }
   };
 
@@ -82,7 +84,7 @@ const CommentsModal = ({ visible, onClose, postId, user, onCommentPosted, onComm
               await deleteComment(postId, commentId);
               await loadComments();
             } catch (error) {
-              console.log('Error deleting comment:', error);
+              console.error('Error deleting comment:', error);
             }
           },
           style: 'destructive',
@@ -117,9 +119,9 @@ const CommentsModal = ({ visible, onClose, postId, user, onCommentPosted, onComm
 
   return (
     <Modal transparent={true} visible={visible} animationType="slide">
-      <TouchableWithoutFeedback onPress={onClose}>
+      <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss(); onClose(); }}>
         <View style={styles.modalOverlay}>
-          <TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={() => {}}>
             <KeyboardAvoidingView
               behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
               style={styles.commentsBox}
@@ -137,7 +139,8 @@ const CommentsModal = ({ visible, onClose, postId, user, onCommentPosted, onComm
                   value={newComment}
                   onChangeText={setNewComment}
                   style={styles.input}
-                  onFocus={() => {}}
+                  onSubmitEditing={handlePostComment}
+                  returnKeyType="send"
                 />
                 <TouchableOpacity onPress={handlePostComment} style={styles.postBtn}>
                   <Text style={styles.postBtnText}>Post</Text>

@@ -28,7 +28,7 @@ import PostCard from '../components/PostCard';
 import { getLikesCount } from '../../config/likes';
 import { getCommentsCount } from '../../config/comments';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import useSendNotification from '../../context/useSendNotification'; // ✅ Import your notification hook
+import useSendNotification from '../../context/useSendNotification';
 
 const OtherUserProfileScreen = () => {
   const { userId } = useLocalSearchParams();
@@ -39,7 +39,7 @@ const OtherUserProfileScreen = () => {
   const [loading, setLoading] = useState(true);
   const [authUser, setAuthUser] = useState(null);
 
-  const sendNotification = useSendNotification(); // ✅ use the notification hook
+  const sendNotification = useSendNotification();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -164,16 +164,15 @@ const OtherUserProfileScreen = () => {
           followers: arrayUnion(currentUid),
         });
 
-        // ✅ Send notification to followed user
         const senderSnap = await getDoc(currentUserRef);
         const senderName = senderSnap.exists() ? senderSnap.data().displayName : 'Someone';
 
         await sendNotification(
           userId,
           'started following you',
-          '', // No postId in this case
+          '',
           senderName,
-          '' // No caption
+          ''
         );
       }
 
@@ -239,8 +238,19 @@ const OtherUserProfileScreen = () => {
               </View>
             </View>
 
-            <TouchableOpacity style={styles.followButton} onPress={toggleFollow}>
-              <Text style={styles.followText}>
+            <TouchableOpacity
+              style={[
+                styles.followButton,
+                isFollowing ? styles.unfollowButton : styles.followButtonActive,
+              ]}
+              onPress={toggleFollow}
+            >
+              <Text
+                style={[
+                  styles.followText,
+                  isFollowing ? styles.unfollowText : styles.followTextActive,
+                ]}
+              >
                 {isFollowing ? 'Unfollow' : 'Follow'}
               </Text>
             </TouchableOpacity>
@@ -292,14 +302,32 @@ const styles = StyleSheet.create({
   statBox: { alignItems: 'center', marginHorizontal: 15 },
   statNumber: { fontSize: 18, fontWeight: 'bold' },
   statLabel: { fontSize: 14, color: '#888' },
+
   followButton: {
     marginTop: 15,
     paddingHorizontal: 30,
     paddingVertical: 8,
-    backgroundColor: '#00c26f',
     borderRadius: 20,
+    borderWidth: 1.2,
   },
-  followText: { color: 'white', fontWeight: 'bold' },
+  followButtonActive: {
+    backgroundColor: '#00c26f',
+    borderColor: '#00c26f',
+  },
+  unfollowButton: {
+    backgroundColor: '#fff',
+    borderColor: '#00c26f',
+  },
+  followText: {
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  followTextActive: {
+    color: 'white',
+  },
+  unfollowText: {
+    color: '#00c26f',
+  },
   noPostText: {
     textAlign: 'center',
     marginTop: 20,

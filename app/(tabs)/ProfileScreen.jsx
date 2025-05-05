@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   statItem: {
-    alignItems: 'center',
+    alignItems: 'left',
     marginHorizontal: 15,
   },
   statNumber: {
