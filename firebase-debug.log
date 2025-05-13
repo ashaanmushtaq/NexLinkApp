@@ -1,0 +1,123 @@
+[debug] [2025-05-11T19:50:07.951Z] ----------------------------------------------------------------------
+[debug] [2025-05-11T19:50:07.953Z] Command:       /nix/store/qds3rzxwqrkvhzjxgcb95d2qx4sd9b1l-nodejs-20.11.1/bin/node /home/user/.global_modules/bin/firebase init functions
+[debug] [2025-05-11T19:50:07.954Z] CLI Version:   14.3.1
+[debug] [2025-05-11T19:50:07.954Z] Platform:      linux
+[debug] [2025-05-11T19:50:07.954Z] Node Version:  v20.11.1
+[debug] [2025-05-11T19:50:07.954Z] Time:          Sun May 11 2025 19:50:07 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-05-11T19:50:07.954Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-05-11T19:50:07.959Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-11T19:50:48.178Z] Running auto auth
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /home/user/nexlinkapp
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2025-05-11T19:51:19.221Z] No OAuth tokens found
+[debug] [2025-05-11T19:51:19.223Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/availableProjects pageSize=100
+[debug] [2025-05-11T19:51:19.952Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/availableProjects 200
+[debug] [2025-05-11T19:51:19.952Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/availableProjects [omitted]
+[debug] [2025-05-11T19:51:50.243Z] No OAuth tokens found
+[debug] [2025-05-11T19:51:50.243Z] >>> [apiv2][query] POST https://firebase.googleapis.com/v1beta1/projects/turing-runner-430410-a9:addFirebase [none]
+[debug] [2025-05-11T19:51:52.219Z] <<< [apiv2][status] POST https://firebase.googleapis.com/v1beta1/projects/turing-runner-430410-a9:addFirebase 200
+[debug] [2025-05-11T19:51:52.219Z] <<< [apiv2][body] POST https://firebase.googleapis.com/v1beta1/projects/turing-runner-430410-a9:addFirebase {"name":"operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4"}
+[debug] [2025-05-11T19:51:52.221Z] No OAuth tokens found
+[debug] [2025-05-11T19:51:52.221Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4 [none]
+[debug] [2025-05-11T19:51:56.691Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4 200
+[debug] [2025-05-11T19:51:56.692Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4 {"name":"operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4"}
+[debug] [2025-05-11T19:51:57.192Z] [Add Firebase Poller] Retrying task index 0
+[debug] [2025-05-11T19:51:57.192Z] No OAuth tokens found
+[debug] [2025-05-11T19:51:57.193Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4 [none]
+[debug] [2025-05-11T19:51:58.194Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4 200
+[debug] [2025-05-11T19:51:58.194Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4 {"name":"operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4"}
+[debug] [2025-05-11T19:51:59.195Z] [Add Firebase Poller] Retrying task index 0
+[debug] [2025-05-11T19:51:59.195Z] No OAuth tokens found
+[debug] [2025-05-11T19:51:59.195Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4 [none]
+[debug] [2025-05-11T19:51:59.728Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4 200
+[debug] [2025-05-11T19:51:59.728Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4 {"name":"operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4"}
+[debug] [2025-05-11T19:52:01.728Z] [Add Firebase Poller] Retrying task index 0
+[debug] [2025-05-11T19:52:01.729Z] No OAuth tokens found
+[debug] [2025-05-11T19:52:01.729Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4 [none]
+[debug] [2025-05-11T19:52:02.259Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4 200
+[debug] [2025-05-11T19:52:02.259Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4 {"name":"operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4"}
+[debug] [2025-05-11T19:52:06.260Z] [Add Firebase Poller] Retrying task index 0
+[debug] [2025-05-11T19:52:06.261Z] No OAuth tokens found
+[debug] [2025-05-11T19:52:06.261Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4 [none]
+[debug] [2025-05-11T19:52:06.645Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4 200
+[debug] [2025-05-11T19:52:06.645Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4 {"name":"operations/workflows/MDZkYTg4YmItYzJlYy00MGQ5LThjNjctY2EzMzEzYzNjMWQ4","done":true,"response":{"@type":"type.googleapis.com/google.firebase.service.v1beta1.FirebaseProject","projectId":"turing-runner-430410-a9","projectNumber":"354913988642","displayName":"My First Project","name":"projects/turing-runner-430410-a9","resources":{"hostingSite":"turing-runner-430410-a9"}}}
+[info] 
+[info] 🎉🎉🎉 Your Firebase project is ready! 🎉🎉🎉
+[info] 
+[info] Project information:
+[info]    - Project ID: turing-runner-430410-a9
+[info]    - Project Name: My First Project
+[info] 
+[info] Firebase console is available at
+[info] https://console.firebase.google.com/project/turing-runner-430410-a9/overview
+[info] i  Using project turing-runner-430410-a9 (My First Project) 
+[info] 
+=== Functions Setup
+[debug] [2025-05-11T19:52:06.656Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-11T19:52:06.656Z] > authorizing via signed-in user (201400155@gift.edu.pk)
+[debug] [2025-05-11T19:52:06.657Z] [iam] checking project nexlink-a7dfd for permissions ["firebase.projects.get"]
+[debug] [2025-05-11T19:52:06.657Z] No OAuth tokens found
+[debug] [2025-05-11T19:52:06.657Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/nexlink-a7dfd:testIamPermissions [none]
+[debug] [2025-05-11T19:52:06.657Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/nexlink-a7dfd:testIamPermissions x-goog-quota-user=projects/nexlink-a7dfd
+[debug] [2025-05-11T19:52:06.657Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/nexlink-a7dfd:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-05-11T19:52:07.443Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/nexlink-a7dfd:testIamPermissions 200
+[debug] [2025-05-11T19:52:07.443Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/nexlink-a7dfd:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-05-11T19:52:07.444Z] No OAuth tokens found
+[debug] [2025-05-11T19:52:07.444Z] No OAuth tokens found
+[debug] [2025-05-11T19:52:07.444Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/turing-runner-430410-a9/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-05-11T19:52:07.444Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/turing-runner-430410-a9/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/turing-runner-430410-a9
+[debug] [2025-05-11T19:52:07.446Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/turing-runner-430410-a9/services/runtimeconfig.googleapis.com [none]
+[debug] [2025-05-11T19:52:07.446Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/turing-runner-430410-a9/services/runtimeconfig.googleapis.com x-goog-quota-user=projects/turing-runner-430410-a9
+[debug] [2025-05-11T19:52:08.481Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/turing-runner-430410-a9/services/runtimeconfig.googleapis.com 200
+[debug] [2025-05-11T19:52:08.481Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/turing-runner-430410-a9/services/runtimeconfig.googleapis.com [omitted]
+[debug] [2025-05-11T19:52:08.497Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/turing-runner-430410-a9/services/cloudfunctions.googleapis.com 200
+[debug] [2025-05-11T19:52:08.497Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/turing-runner-430410-a9/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2025-05-11T19:52:08.498Z] No OAuth tokens found
+[debug] [2025-05-11T19:52:08.498Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/turing-runner-430410-a9/services/cloudfunctions.googleapis.com:enable [none]
+[debug] [2025-05-11T19:52:08.498Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/turing-runner-430410-a9/services/cloudfunctions.googleapis.com:enable x-goog-quota-user=projects/turing-runner-430410-a9
+[debug] [2025-05-11T19:52:08.890Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/turing-runner-430410-a9/services/cloudfunctions.googleapis.com:enable 200
+[debug] [2025-05-11T19:52:08.891Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/turing-runner-430410-a9/services/cloudfunctions.googleapis.com:enable [omitted]
+[debug] [2025-05-11T19:52:18.896Z] No OAuth tokens found
+[debug] [2025-05-11T19:52:18.896Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/turing-runner-430410-a9/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-05-11T19:52:18.896Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/turing-runner-430410-a9/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/turing-runner-430410-a9
+[debug] [2025-05-11T19:52:19.906Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/turing-runner-430410-a9/services/cloudfunctions.googleapis.com 200
+[debug] [2025-05-11T19:52:19.906Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/turing-runner-430410-a9/services/cloudfunctions.googleapis.com [omitted]
+[info] Let's create a new codebase for your functions.
+[info] A directory corresponding to the codebase will be created in your project
+[info] with sample code pre-configured.
+
+[info] See https://firebase.google.com/docs/functions/organize-functions for
+[info] more information on organizing your functions using codebases.
+
+[info] Functions can be deployed with firebase deploy.
+
+[debug] [2025-05-11T19:52:30.769Z] ExitPromptError: User force closed the prompt with SIGINT
+    at Interface.sigint (/home/user/.global_modules/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/create-prompt.js:100:37)
+    at Interface.emit (node:events:518:28)
+    at Interface.emit (node:domain:488:12)
+    at [_ttyWrite] [as _ttyWrite] (node:internal/readline/interface:1125:18)
+    at ReadStream.onkeypress (node:internal/readline/interface:264:20)
+    at ReadStream.emit (node:events:530:35)
+    at ReadStream.emit (node:domain:488:12)
+    at emitKeys (node:internal/readline/utils:371:14)
+    at emitKeys.next (<anonymous>)
+    at ReadStream.onData (node:internal/readline/emitKeypressEvents:64:36)
+[error] 
+[error] Error: An unexpected error has occurred.

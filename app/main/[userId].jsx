@@ -28,6 +28,9 @@ import PostCard from '../components/PostCard';
 import { getLikesCount } from '../../config/likes';
 import { getCommentsCount } from '../../config/comments';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
+import Entypo from '@expo/vector-icons/Entypo';
 import useSendNotification from '../../context/useSendNotification';
 
 const OtherUserProfileScreen = () => {
@@ -238,22 +241,67 @@ const OtherUserProfileScreen = () => {
               </View>
             </View>
 
-            <TouchableOpacity
-              style={[
-                styles.followButton,
-                isFollowing ? styles.unfollowButton : styles.followButtonActive,
-              ]}
-              onPress={toggleFollow}
-            >
-              <Text
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '75%', marginTop: 12 }}>
+              <TouchableOpacity
                 style={[
-                  styles.followText,
-                  isFollowing ? styles.unfollowText : styles.followTextActive,
+                  styles.followButton,
+                  isFollowing ? styles.unfollowButton : styles.followButtonActive,
                 ]}
+                onPress={toggleFollow}
               >
-                {isFollowing ? 'Unfollow' : 'Follow'}
-              </Text>
-            </TouchableOpacity>
+                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                  {/* Show the correct icon based on the follow state */}
+                  {isFollowing ? (
+                    <Entypo name="remove-user" size={20} color="#00c26f" />
+                  ) : (
+                    <Entypo name="add-user" size={20} color="white" />
+                  )}
+                  <Text
+                    style={[
+                      styles.followText,
+                      isFollowing ? styles.unfollowText : styles.followTextActive,
+                      { marginLeft: 8 }, // Space between icon and text
+                    ]}
+                  >
+                    {isFollowing ? 'Unfollow' : 'Follow'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {isFollowing && (
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: 'white',
+                    paddingHorizontal: 15,
+                    paddingVertical: 8,
+                    borderRadius: 20,
+                    borderWidth: 1.2,
+                    marginTop: 10,
+                    marginLeft: 15, // Space between unfollow and message button
+                    alignSelf: 'center',
+                    borderColor: '#00c26f',
+                  }}
+                  onPress={() => router.push(`/messenger/${userId}`)} // 👈 Navigate to chat
+                >
+                  <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                    <FontAwesome5 name="facebook-messenger" size={20} color="#00c26f" />
+                    <Text
+                      style={{
+                        color: '#00c26f',
+                        fontWeight: 'bold',
+                        marginLeft: 8, // Space between icon and text
+                      }}
+                    >
+                      Message
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            </View>
+
+
+
+
           </View>
         }
         renderItem={({ item }) => (
@@ -305,7 +353,7 @@ const styles = StyleSheet.create({
 
   followButton: {
     marginTop: 15,
-    paddingHorizontal: 30,
+    paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1.2,
@@ -328,6 +376,18 @@ const styles = StyleSheet.create({
   unfollowText: {
     color: '#00c26f',
   },
+  messageButton: {
+    marginTop: 10,
+    paddingHorizontal: 30,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#007bff',
+  },
+  messageButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },  
   noPostText: {
     textAlign: 'center',
     marginTop: 20,

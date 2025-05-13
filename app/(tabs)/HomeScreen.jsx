@@ -8,6 +8,7 @@ import Avatar from '../components/Avatar';
 import { fetchPost } from '../../service/postService';
 import PostCard from '../components/PostCard';
 import { useFocusEffect } from '@react-navigation/native';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 const HomeScreen = ({ user }) => {
   const router = useRouter();
@@ -101,13 +102,8 @@ const HomeScreen = ({ user }) => {
           <Pressable onPress={() => router.push('../main/NewPost')}>
             <FontAwesome name="plus-square-o" size={24} color="#494949" />
           </Pressable>
-          <Pressable onPress={() => router.push('/ProfileScreen')}>
-            <Avatar
-              uri={user?.photoURL}
-              size={28}
-              rounded={12}
-              style={{ borderWidth: 2 }}
-            />
+          <Pressable onPress={() => router.push('/messenger/ChatListScreen')}>
+            <FontAwesome5 name="facebook-messenger" size={24} color="#494949" />
           </Pressable>
         </View>
       </View>
