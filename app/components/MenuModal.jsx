@@ -26,6 +26,7 @@ const MenuModal = ({
   onUnfollow,
   onDelete,
   onHide,
+  onEditPost,
 }) => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -147,6 +148,17 @@ const MenuModal = ({
             },
             'user'
           )}
+
+          {isOwnPost &&
+            renderOption(
+              'Edit Post',
+              () => {
+                onClose();
+                onEditPost?.();
+              },
+              'edit'
+            )}
+
 
           {!isOwnPost &&
             renderOption(

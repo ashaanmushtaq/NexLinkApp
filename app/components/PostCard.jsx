@@ -191,8 +191,14 @@ const PostCard = ({ post, user, handleUnfollow, handleDelete, handleHide }) => {
         onUnfollow={handleUnfollow}
         onDelete={handleDeletePost}
         onHide={handleHidePost}
-        isFollowingUser={isFollowingUser}
+        onEditPost={() => {
+          setOptionsVisible(false);
+          router.push(`/editPost/${post.id}`);
+        }}
+        
+        
       />
+
       <CommentsModal
         visible={commentsVisible}
         onClose={() => setCommentsVisible(false)}

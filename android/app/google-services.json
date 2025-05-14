@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "714639581586",
+    "firebase_url": "https://nexlink-a7dfd-default-rtdb.firebaseio.com",
+    "project_id": "nexlink-a7dfd",
+    "storage_bucket": "nexlink-a7dfd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:714639581586:android:988e1f71d5a0792aa4a14b",
+        "android_client_info": {
+          "package_name": "com.anonymous.nexlinkapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "714639581586-8c41i54mr4fbkdrloi29pd1pqe4nqcof.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEwi_uk5p1mKCji-JDycszrxF8dec66VI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "714639581586-8c41i54mr4fbkdrloi29pd1pqe4nqcof.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

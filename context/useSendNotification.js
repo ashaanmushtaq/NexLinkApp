@@ -1,29 +1,31 @@
 import { db } from '../config/FirebaseConfig';
-import { collection, addDoc, serverTimestamp, getDoc, doc } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const useSendNotification = () => {
-  const sendNotification = async (toUserId, message, postId, senderName, caption) => {
+  const sendNotification = async (toUserId, message, postId, senderName, caption, fromUserId) => {
     try {
       // Prepare the notification message
-      const notificationMessage = `${senderName} ${message}: "${caption}"`; 
+      const notificationMessage = `${senderName} ${message}${caption ? `: "${caption}"` : ''}`;
 
-      // Adding notification to Firestore
+      // Add the notification to Firestore
       await addDoc(collection(db, 'notifications'), {
+        toUserId,
+        message: notificationMessage,
+        postId: postId || '',
+        senderName,
+        caption: caption || '',
+        fromUserId, // ✅ Correct usage
+        type: 'message', // optional but recommended
+        createdAt: serverTimestamp(),
+      });
+
+      console.log('✅ Notification sent:', {
         toUserId,
         message: notificationMessage,
         postId,
         senderName,
         caption,
-        createdAt: serverTimestamp(), // Use serverTimestamp for accurate timestamp
-      });
-
-      console.log("✅ Notification sent:", {
-        toUserId,
-        message,
-        postId,
-        senderName,
-        caption,
+        fromUserId,
       });
     } catch (error) {
       console.error('❌ Failed to send notification:', error);
@@ -34,31 +36,3 @@ const useSendNotification = () => {
 };
 
 export default useSendNotification;
-
-// useSendNotification.js
-
-export const sendNotification = async ({ recipientId, title, body }) => {
-  // Example using Expo push notifications (you should adapt this to your backend or logic)
-  const userDoc = await getDoc(doc(db, 'users', recipientId));
-  const expoPushToken = userDoc.data()?.expoPushToken;
-
-  if (!expoPushToken) throw new Error('No push token for user');
-
-  const message = {
-    to: expoPushToken,
-    sound: 'default',
-    title,
-    body,
-    data: { someData: 'optional' },
-  };
-
-  await fetch('https://exp.host/--/api/v2/push/send', {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Accept-encoding': 'gzip, deflate',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(message),
-  });
-};

@@ -43,7 +43,7 @@ const OtherUserProfileScreen = () => {
   const [authUser, setAuthUser] = useState(null);
 
   const sendNotification = useSendNotification();
-
+ 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setAuthUser(user);

@@ -32,14 +32,46 @@ const NotificationScreen = () => {
   }, [user?.uid]);
 
   const handleNotificationPress = (item) => {
-    if (item?.postId) {
-      // Navigate to the specific post screen
-      router.push(`/post/${item.postId}`);
+    if (item?.type === 'message' && item?.fromUserId) {
+      // Navigate to chat screen
+      router.push({
+        pathname: `/messenger/${item.fromUserId}`,
+        params: { userId: item.fromUserId },
+      });
+    } else if (
+      (item?.type === 'comment' || item?.type === 'like') &&
+      item?.postId
+    ) {
+      // Navigate to post screen
+      router.push({
+        pathname: `/post/${item.postId}`,
+        params: { postId: item.postId },
+      });
+    } else if (item?.type === 'follow' && item?.fromUserId) {
+      // Navigate to user profile
+      router.push({
+        pathname: `/main/${item.fromUserId}`,
+        params: { userId: item.fromUserId },
+      });
+    } else if (item?.postId) {
+      // Fallback: post-related notification
+      router.push({
+        pathname: `/post/${item.postId}`,
+        params: { postId: item.postId },
+      });
     } else if (item?.fromUserId) {
-      // Navigate to the user's profile who triggered the notification (e.g., follower)
-      router.push(`/main/${item.fromUserId}`);
+      // Fallback: user-related notification
+      router.push({
+        pathname: `/main/${item.fromUserId}`,
+        params: { userId: item.fromUserId },
+      });
+    } else {
+      console.warn('Unknown notification format:', item);
     }
   };
+  
+  
+  
 
   const renderItem = ({ item }) => {
     return (

@@ -28,7 +28,7 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import moment from 'moment';
-import { sendNotification } from '../../context/useSendNotification';
+import useSendNotification from '../../context/useSendNotification';
 
 const ChatScreen = () => {
   const { userId: receiverId } = useLocalSearchParams();
@@ -39,6 +39,8 @@ const ChatScreen = () => {
   const [senderData, setSenderData] = useState(null);
   const [lastSeen, setLastSeen] = useState(null);
 
+  const sendNotification = useSendNotification();
+ 
   const senderId = auth.currentUser?.uid;
   const flatListRef = useRef();
   const router = useRouter();
@@ -119,7 +121,7 @@ const ChatScreen = () => {
 
   const sendMessage = async () => {
     if (!message.trim() || !chatId) return;
-
+  
     const msgRef = collection(db, 'conversations', chatId, 'messages');
     await addDoc(msgRef, {
       text: message.trim(),
@@ -128,43 +130,71 @@ const ChatScreen = () => {
       senderPhoto: senderData?.photoURL || '',
       createdAt: serverTimestamp(),
     });
-
+  
     await updateDoc(doc(db, 'conversations', chatId), {
       lastMessage: message.trim(),
       updatedAt: serverTimestamp(),
       [`unread.${receiverId}`]: true,
       [`unread.${senderId}`]: false,
     });
-
+  
     try {
-      await sendNotification({
-        recipientId: receiverId,
-        title: 'New Message',
-        body: `You have a new message from ${senderData?.displayName}`,
-      });
+      const senderName = senderData?.displayName || 'Someone';
+      await sendNotification(
+        receiverId,
+        'sent you a message',
+        '',                // no postId in chat
+        senderData?.displayName || '',
+        '',                // no caption
+        senderId           // pass current user's UID here
+      );
+      
       console.log('✅ Notification sent successfully');
     } catch (error) {
       console.error('❌ Failed to send notification:', error);
     }
-
+  
     setMessage('');
   };
 
-  const renderItem = ({ item, index }) => {
-    const isMe = item.senderId === senderId;
-    const isLast = isMe && index === messages.length - 1;
-    const formattedTime = item.createdAt?.toDate
-      ? moment(item.createdAt.toDate()).format('hh:mm A')
-      : '';
+  // Helper to format date headers like "Today", "Yesterday", or actual date
+const formatMessageDate = (date) => {
+  const now = moment();
+  const messageDay = moment(date);
 
-    const seenStatus =
-      isLast && lastSeen && item.createdAt?.toDate?.() <= lastSeen
-        ? 'Seen'
-        : isLast
-        ? 'Unseen'
-        : null;
+  if (now.isSame(messageDay, 'day')) return 'Today';
+  if (now.subtract(1, 'days').isSame(messageDay, 'day')) return 'Yesterday';
+  return messageDay.format('MMMM DD, YYYY'); // e.g., "May 14, 2025"
+};
 
-    return (
+  
+
+const renderItem = ({ item, index }) => {
+  const isMe = item.senderId === senderId;
+  const isLast = isMe && index === messages.length - 1;
+  const formattedTime = item.createdAt?.toDate
+    ? moment(item.createdAt.toDate()).format('hh:mm A')
+    : '';
+
+  const seenStatus =
+    isLast && lastSeen && item.createdAt?.toDate?.() <= lastSeen
+      ? 'Seen'
+      : isLast
+      ? 'Unseen'
+      : null;
+
+  const showDate =
+    index === 0 ||
+    moment(item.createdAt?.toDate()).format('YYYY-MM-DD') !==
+      moment(messages[index - 1].createdAt?.toDate()).format('YYYY-MM-DD');
+
+  return (
+    <>
+      {showDate && (
+        <Text style={styles.dateSeparator}>
+          {formatMessageDate(item.createdAt?.toDate?.())}
+        </Text>
+      )}
       <View
         style={[
           styles.messageWrapper,
@@ -174,7 +204,6 @@ const ChatScreen = () => {
         {!isMe && item.senderPhoto && (
           <Image source={{ uri: item.senderPhoto }} style={styles.avatar} />
         )}
-
         <View>
           <View
             style={[
@@ -207,8 +236,10 @@ const ChatScreen = () => {
           )}
         </View>
       </View>
-    );
-  };
+    </>
+  );
+};
+
 
   return (
     <KeyboardAvoidingView
@@ -252,10 +283,10 @@ const ChatScreen = () => {
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={styles.messagesContainer}
-        onContentSizeChange={() =>
-          flatListRef.current?.scrollToEnd({ animated: true })
-        }
+        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+        onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
       />
+
 
       <View style={styles.inputContainer}>
         <TouchableOpacity style={styles.mediaIcon}>
@@ -346,6 +377,13 @@ const styles = StyleSheet.create({
     color: '#888', // Gray color for 'Unseen'
     marginTop: 2,
     textAlign: 'right',
+  },
+  dateSeparator: {
+    textAlign: 'center',
+    color: '#555',
+    marginVertical: 8,
+    fontWeight: '600',
+    fontSize: 13,
   },
   
 });
